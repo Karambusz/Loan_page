@@ -5028,6 +5028,13 @@ window.addEventListener("DOMContentLoaded", function () {
     btns: ".next"
   });
   slider.render();
+  var modulePageSlider = new _modules_slider_slider_main__WEBPACK_IMPORTED_MODULE_0__["default"]({
+    container: ".moduleapp",
+    btns: ".next",
+    nextMain: ".nextmodule",
+    prevMain: ".prevmodule"
+  });
+  modulePageSlider.render();
   var showUpSlider = new _modules_slider_slider_mini__WEBPACK_IMPORTED_MODULE_1__["default"]({
     container: ".showup__content-slider",
     prev: ".showup__prev",
@@ -5087,12 +5094,14 @@ function () {
   function Difference(oldOfficer, newOfficer, items) {
     _classCallCheck(this, Difference);
 
-    this.oldOfficer = document.querySelector(oldOfficer);
-    this.newOfficer = document.querySelector(newOfficer);
-    this.oldItems = this.oldOfficer.querySelectorAll(items);
-    this.newItems = this.newOfficer.querySelectorAll(items);
-    this.oldCounter = 0;
-    this.newCounter = 0;
+    try {
+      this.oldOfficer = document.querySelector(oldOfficer);
+      this.newOfficer = document.querySelector(newOfficer);
+      this.oldItems = this.oldOfficer.querySelectorAll(items);
+      this.newItems = this.newOfficer.querySelectorAll(items);
+      this.oldCounter = 0;
+      this.newCounter = 0;
+    } catch (e) {}
   }
 
   _createClass(Difference, [{
@@ -5131,10 +5140,12 @@ function () {
   }, {
     key: "init",
     value: function init() {
-      this.hideItems(this.oldItems);
-      this.hideItems(this.newItems);
-      this.bindTriggers(this.oldOfficer, this.oldItems, this.oldCounter);
-      this.bindTriggers(this.newOfficer, this.newItems, this.newCounter);
+      try {
+        this.hideItems(this.oldItems);
+        this.hideItems(this.newItems);
+        this.bindTriggers(this.oldOfficer, this.oldItems, this.oldCounter);
+        this.bindTriggers(this.newOfficer, this.newItems, this.newCounter);
+      } catch (e) {}
     }
   }]);
 
@@ -5483,10 +5494,20 @@ var MainSlider =
 function (_Slider) {
   _inherits(MainSlider, _Slider);
 
-  function MainSlider(btns) {
+  function MainSlider(_ref) {
+    var btns = _ref.btns,
+        prevMain = _ref.prevMain,
+        nextMain = _ref.nextMain,
+        container = _ref.container;
+
     _classCallCheck(this, MainSlider);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(MainSlider).call(this, btns));
+    return _possibleConstructorReturn(this, _getPrototypeOf(MainSlider).call(this, {
+      btns: btns,
+      prevMain: prevMain,
+      nextMain: nextMain,
+      container: container
+    }));
   }
 
   _createClass(MainSlider, [{
@@ -5520,6 +5541,7 @@ function (_Slider) {
       this.slides.forEach(function (slide) {
         slide.style.display = "none";
         slide.classList.add("animated");
+        slide.classList.remove("slideInLeft", "slideInLeft");
       });
       this.slides[this.slideIndex - 1].style.display = "block";
     }
@@ -5530,26 +5552,62 @@ function (_Slider) {
       this.slides[this.slideIndex - 1].classList.add("slideInUp");
     }
   }, {
-    key: "render",
-    value: function render() {
+    key: "bindTriggers",
+    value: function bindTriggers() {
       var _this2 = this;
-
-      try {
-        this.hanson = document.querySelector('.hanson');
-      } catch (e) {}
 
       this.btns.forEach(function (item) {
         item.addEventListener('click', function () {
           _this2.plusSlides(1);
         });
-        item.parentNode.previousElementSibling.addEventListener("click", function (e) {
+      });
+      document.querySelectorAll(".logolink").forEach(function (logo) {
+        logo.addEventListener("click", function (e) {
           e.preventDefault();
           _this2.slideIndex = 1;
 
           _this2.plusSlides(0);
         });
       });
-      this.showSlides(this.slideIndex);
+
+      try {
+        this.prevMain.forEach(function (item) {
+          item.addEventListener('click', function (e) {
+            e.stopPropagation();
+            e.preventDefault();
+
+            _this2.showSlides(_this2.slideIndex += -1);
+
+            _this2.slides[_this2.slideIndex - 1].classList.remove("slideInLeft", "slideInUp");
+
+            _this2.slides[_this2.slideIndex - 1].classList.add("slideInRight");
+          });
+        });
+        this.nextMain.forEach(function (item) {
+          item.addEventListener('click', function (e) {
+            e.stopPropagation();
+            e.preventDefault();
+
+            _this2.showSlides(_this2.slideIndex += 1);
+
+            _this2.slides[_this2.slideIndex - 1].classList.remove("slideInRight", "slideInUp");
+
+            _this2.slides[_this2.slideIndex - 1].classList.add("slideInLeft");
+          });
+        });
+      } catch (e) {}
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      if (this.container) {
+        try {
+          this.hanson = document.querySelector('.hanson');
+        } catch (e) {}
+
+        this.showSlides(this.slideIndex);
+        this.bindTriggers();
+      }
     }
   }]);
 
@@ -5703,22 +5761,24 @@ function (_Slider) {
     value: function init() {
       var _this4 = this;
 
-      this.container.style.cssText = "\n            display: flex;\n            flex-wrap: wrap;\n            overflow: hidden;\n            align-items: flex-start;\n        ";
-      this.bindTriggers();
-      this.decorizeSlides();
+      try {
+        this.container.style.cssText = "\n            display: flex;\n            flex-wrap: wrap;\n            overflow: hidden;\n            align-items: flex-start;\n        ";
+        this.bindTriggers();
+        this.decorizeSlides();
 
-      if (this.autoplay) {
-        this.activateSlider();
-      }
+        if (this.autoplay) {
+          this.activateSlider();
+        }
 
-      if (this.paused) {
-        this.container.addEventListener('mouseenter', function () {
-          clearInterval(_this4.paused);
-        });
-        this.container.addEventListener('mouseleave', function () {
-          _this4.activateSlider();
-        });
-      }
+        if (this.paused) {
+          this.container.addEventListener('mouseenter', function () {
+            clearInterval(_this4.paused);
+          });
+          this.container.addEventListener('mouseleave', function () {
+            _this4.activateSlider();
+          });
+        }
+      } catch (e) {}
     }
   }]);
 
@@ -5751,6 +5811,10 @@ var Slider = function Slider() {
       next = _ref$next === void 0 ? null : _ref$next,
       _ref$prev = _ref.prev,
       prev = _ref$prev === void 0 ? null : _ref$prev,
+      _ref$nextMain = _ref.nextMain,
+      nextMain = _ref$nextMain === void 0 ? null : _ref$nextMain,
+      _ref$prevMain = _ref.prevMain,
+      prevMain = _ref$prevMain === void 0 ? null : _ref$prevMain,
       _ref$activeClass = _ref.activeClass,
       activeClass = _ref$activeClass === void 0 ? "" : _ref$activeClass,
       animate = _ref.animate,
@@ -5761,10 +5825,16 @@ var Slider = function Slider() {
   _classCallCheck(this, Slider);
 
   this.container = document.querySelector(container);
-  this.slides = this.container.children;
+
+  try {
+    this.slides = this.container.children;
+  } catch (e) {}
+
   this.btns = document.querySelectorAll(btns);
   this.prev = document.querySelector(prev);
   this.next = document.querySelector(next);
+  this.nextMain = document.querySelectorAll(nextMain);
+  this.prevMain = document.querySelectorAll(prevMain);
   this.activeClass = activeClass;
   this.animate = animate;
   this.autoplay = autoplay;
